@@ -15,7 +15,7 @@ library(tidyverse)
 hw5_data_df = tibble(list.files("./data")) %>% 
   janitor::clean_names() %>% 
   mutate(files_name_wd = str_c("./data/", list_files_data),
-         files_name = list_files_data) %>% 
+         files_name = str_replace(list_files_data, ".csv", "")) %>% 
   select(-list_files_data)
 
 head(hw5_data_df)
@@ -29,10 +29,20 @@ hw5_tidied_data =
   unnest() %>% 
   gather(key = week, value = value, week_1:week_8) %>% 
   select(-files_name_wd) %>% 
-  mutate(week = str_replace(week, "week_", ""))
+  mutate(week = str_replace(week, "week_", "")) %>% 
+  mutate(week = as.numeric(week)) %>% 
+  mutate(value = as.numeric(value))
 
 head(hw5_tidied_data)
 ```
+
+```{r}
+hw5_tidied_data %>% 
+  ggplot(aes(x = week, y = value, color = files_name)) +
+  #geom_point() +
+  geom_line()
+```
+
 
 # Problem Two
 
