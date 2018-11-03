@@ -9,20 +9,27 @@ output: github_document
 library(tidyverse)
 ```
 
+# Problem One
+
 ```{r}
 hw5_data_df = tibble(list.files("./data")) %>% 
   janitor::clean_names() %>% 
-  mutate(files_name = str_c("./data/", list_files_data)) %>% 
+  mutate(files_name_wd = str_c("./data/", list_files_data),
+         files_name = list_files_data) %>% 
   select(-list_files_data)
 ```
 
 ```{r}
 hw5_data_df %>% 
-  mutate(data = map(files_name, read_csv)) %>% 
-  bind_rows()
+  mutate(data = map(files_name_wd, read_csv)) %>% 
+  bind_rows() %>% 
+  unnest() %>% 
+  gather(key = week, value = value, week_1:week_8) %>% 
+  select(-files_name_wd) %>% 
+  mutate(week = str_replace(week, "week_", ""))
 ```
 
-
+# Problem Two
 
 
 
