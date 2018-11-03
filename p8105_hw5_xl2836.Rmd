@@ -1,0 +1,36 @@
+---
+title: "Homework 5"
+author: "Xinyi Lin"
+date: "11/1/2018"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+hw5_data_df = tibble(list.files("./data")) %>% 
+  janitor::clean_names() %>% 
+  mutate(files_name = str_c("./data/", list_files_data)) %>% 
+  select(-list_files_data)
+```
+
+```{r}
+hw5_data_df %>% 
+  mutate(data = map(files_name, read_csv)) %>% 
+  bind_rows()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
