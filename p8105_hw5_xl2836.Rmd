@@ -39,7 +39,7 @@ head(hw5_tidied_data)
 ## Tidied data
 
 ```{r}
-homicide_df = read_csv("./data/homicide-data.csv") %>% 
+homicide_df = read_csv("homicide-data.csv") %>% 
   mutate(city_state = str_c(city, ", ", state))
 ```
 
