@@ -17,27 +17,113 @@ hw5_data_df = tibble(list.files("./data")) %>%
   mutate(files_name_wd = str_c("./data/", list_files_data),
          files_name = list_files_data) %>% 
   select(-list_files_data)
+
+head(hw5_data_df)
 ```
 
-```{r}
-hw5_data_df %>% 
+```{r, message = FALSE}
+hw5_tidied_data =
+  hw5_data_df %>% 
   mutate(data = map(files_name_wd, read_csv)) %>% 
   bind_rows() %>% 
   unnest() %>% 
   gather(key = week, value = value, week_1:week_8) %>% 
   select(-files_name_wd) %>% 
   mutate(week = str_replace(week, "week_", ""))
+
+head(hw5_tidied_data)
 ```
 
 # Problem Two
 
+## Tidied data
 
+```{r}
+homicide_df = read_csv("./data/homicide-data.csv") %>% 
+  mutate(city_state = str_c(city, ", ", state))
+```
 
+The original dataset gathered information about homicides in 50 large U.S. cities including the location of the killing, whether an arrest was made and, in most cases, basic demographic information about each victim. It cantains `r ncol(homicide_df)` variables and `r nrow(homicide_df)` observations. Main variables are `city`, `state` and `disposition`
 
+## Number of total and unsolved homicides
 
+```{r}
+city_total_homicicides =
+  homicide_df %>% 
+  group_by(city) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n))
 
+head(city_total_homicicides)
+```
 
+```{r}
+city_unsolved_homicides =
+  homicide_df %>% 
+  filter(disposition == "Closed without arrest" | disposition == "Open/No arrest") %>% 
+  group_by(city) %>% 
+  summarise(n = n()) %>% 
+  arrange(desc(n))
 
+head(city_unsolved_homicides)
+```
+
+## Proportion of Baltimore and MD
+
+```{r}
+two_cities_total_homicicides = 
+  city_total_homicicides %>% 
+  filter(city == "Baltimore")
+
+two_cities_unsolved_homicicides =
+  city_unsolved_homicides %>% 
+  filter(city == "Baltimore")
+
+prop_Baltimore = 
+  prop.test(two_cities_unsolved_homicicides$n, two_cities_total_homicicides$n)
+
+prop_Baltimore %>% 
+  broom::tidy() %>% 
+  pull(estimate)
+
+prop_Baltimore %>% 
+  broom::tidy() %>% 
+  pull(conf.low)
+
+prop_Baltimore %>% 
+  broom::tidy() %>% 
+  pull(conf.high)
+```
+
+```{r}
+city_total_homicicides =
+  city_total_homicicides %>% 
+  arrange(city) 
+
+city_unsolved_homicides =
+  city_unsolved_homicides %>% 
+  arrange(city)
+```
+
+```{r}
+city_prop = 
+  city_total_homicicides %>% 
+  mutate(parameters = map2(city_unsolved_homicides$n, city_total_homicicides$n, prop.test)) %>% 
+  mutate(parameters = map(parameters, broom::tidy)) %>% 
+  unnest() %>% 
+  janitor::clean_names() %>% 
+  select(-n)
+```
+
+## Draw a plot
+
+```{r}
+city_prop %>% 
+  mutate(city = reorder(city, desc(estimate))) %>% 
+  ggplot(aes(x = city, y = estimate)) +
+  geom_errorbar(aes(ymin = conf_low, ymax = conf_high)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
 
 
