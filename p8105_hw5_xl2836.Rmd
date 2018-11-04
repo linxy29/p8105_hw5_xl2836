@@ -29,20 +29,23 @@ hw5_tidied_data =
   unnest() %>% 
   gather(key = week, value = value, week_1:week_8) %>% 
   select(-files_name_wd) %>% 
+  separate(files_name, into = c("groups", "id"), sep = "_") %>% 
   mutate(week = str_replace(week, "week_", "")) %>% 
   mutate(week = as.numeric(week)) %>% 
-  mutate(value = as.numeric(value))
+  mutate(value = as.numeric(value)) 
 
 head(hw5_tidied_data)
 ```
 
 ```{r}
 hw5_tidied_data %>% 
-  ggplot(aes(x = week, y = value, color = files_name)) +
+  ggplot(aes(x = week, y = value, color = id)) +
   #geom_point() +
-  geom_line()
+  geom_line() +
+  facet_grid(.~ groups)
 ```
 
+Through this plot, we can find that the values of subjects in two groups are similar at the beginning. However, the values of subjects in experiment group increased over time while the values of subjects in control group keep the same.
 
 # Problem Two
 
@@ -131,6 +134,7 @@ city_prop =
 city_prop %>% 
   mutate(city = reorder(city, desc(estimate))) %>% 
   ggplot(aes(x = city, y = estimate)) +
+  geom_point() +
   geom_errorbar(aes(ymin = conf_low, ymax = conf_high)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
