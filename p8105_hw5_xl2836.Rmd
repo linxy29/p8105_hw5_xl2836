@@ -126,6 +126,8 @@ city_prop =
   unnest() %>% 
   janitor::clean_names() %>% 
   select(-n)
+
+head(city_prop)
 ```
 
 ## Draw a plot
