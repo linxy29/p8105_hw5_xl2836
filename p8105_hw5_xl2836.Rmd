@@ -58,9 +58,12 @@ Through this plot, we can find that the values of subjects in two groups are sim
 
 ## Tidied data
 
+First, I create a `city_state` variable by combining `city` and `state`. As there is only one record about "Tulsa, AL", I think it infact happened in "Tulsa, OK" but recorded as "Tulsa, AL" mistakenly, so I changed it to "Tulsa, OK".
+
 ```{r}
 homicide_df = read_csv("homicide-data.csv") %>% 
-  mutate(city_state = str_c(city, ", ", state))
+  mutate(city_state = str_c(city, ", ", state)) %>% 
+  mutate(city_state = str_replace(city_state, "Tulsa, AL", "Tulsa, OK"))
 ```
 
 The original dataset gathered information about homicides in 50 large U.S. cities including the location of the killing, whether an arrest was made and, in most cases, basic demographic information about each victim. It cantains `r ncol(homicide_df)` variables and `r nrow(homicide_df)` observations. Main variables are `city`, `state` and `disposition`
@@ -119,7 +122,6 @@ prop_Baltimore %>%
 ```{r}
 city_homicides = left_join(city_total_homicides, city_unsolved_homicides, by = "city_state")
   
-
 city_homicides[is.na(city_homicides)] = 0
 ```
 
